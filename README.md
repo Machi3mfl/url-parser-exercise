@@ -1,4 +1,10 @@
-# URL Parser Exercise
+## Contents
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Full documentation](#full-documentation)
+
+# Introduction
 
 We need some logic that extracts the variable parts of a url into a hash. The keys of the
 extract hash will be the "names" of the variable parts of a url, and the values of the hash
@@ -29,17 +35,6 @@ sort: 'desc',
 limit: 10
 }
 ```
-
-## Contents
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Full documentation](#full-documentation)
-
-
-## Introduction
-
-Hystrix is a latency and fault tolerance library designed to isolate points of access to remote systems, services and 3rd party libraries, stop cascading failure and enable resilience in complex distributed systems where failure is inevitable.
 
 ## Installation
 
