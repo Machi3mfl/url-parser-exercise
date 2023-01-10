@@ -2,6 +2,7 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
+- [CI/CD](#cicd)
 - [Full documentation](#full-documentation)
 
 # Introduction
@@ -51,6 +52,13 @@ The current exercise only have unit test script, you can run it using the follow
 ```
 npm run test:coverage
 ```
+
+## CI/CD
+
+Added github actions implementing CI/CD (Continuous integration/Continuous deployment) workflows like:
+
+- Running Unit tests task
+- Deploy [Test Report](https://machi3mfl.github.io/url-parser-exercise/) in Github Pages
 
 ## Full Documentation
 
