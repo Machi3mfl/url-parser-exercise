@@ -59,4 +59,4 @@ npm run test:coverage
 
 ## Full Documentation
 
-See the [Wiki](https://github.com/Machi3mfl/url-parser-exercisse/wiki/) for full documentation, examples, operational details and other information.
+See the [Wiki](https://github.com/Machi3mfl/url-parser-exercise/wiki/) for full documentation, examples, operational details and other information.
