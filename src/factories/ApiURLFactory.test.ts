@@ -1,10 +1,16 @@
 import ApiURLFactory from './ApiURLFactory';
 import ApiURLv1 from '../models/ApiURL/v1/ApiURLv1';
+import ApiURLv2 from '../models/ApiURL/v2/ApiURLv2';
 
 describe('ApiURLFactory', () => {
     it('should create a new instance of ApiURL', () => {
         const apiURL = ApiURLFactory.createApiURL('v1');
         expect(apiURL).toBeInstanceOf(ApiURLv1);
+    })
+
+    it('should create a new instance of ApiURL', () => {
+        const apiURL = ApiURLFactory.createApiURL('v2');
+        expect(apiURL).toBeInstanceOf(ApiURLv2);
     })
 
     it('should return ERROR when version not exists', () => {
