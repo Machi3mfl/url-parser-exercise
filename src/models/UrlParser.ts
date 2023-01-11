@@ -1,20 +1,4 @@
-import { isPositiveFloat, isPositiveInteger } from "./utils";
-
-interface iQuerySearchParams {
-  sort?: "desc" | "asc";
-  limit?: number;
-}
-
-interface iQueryParams extends iQuerySearchParams {
-  version: string;
-  collection: string;
-  id: number;
-}
-
-interface iQueryParamsConfig {
-  [key: string]: (value: string) => false | string;
-}
-
+import { iQueryParamsConfig, iQueryParams, iQuerySearchParams } from "../types";
 // crear factory para crear los parsers con la definicion de los parametros
 // crear un parser para cada version
 // crear diagrama de secuencia
@@ -25,35 +9,14 @@ interface iQueryParamsConfig {
 class UrlParser {
   url: URL;
   protected search: URLSearchParams;
-  protected queryParamsConfig: iQueryParamsConfig = {
-    sort: (value: string) =>
-      !["DESC", "ASC"].includes(value.toUpperCase())
-        ? `Error: value "${value}" for "sort" search param is invalid`
-        : false,
-    limit: (value: string) =>
-      !isPositiveInteger(value)
-        ? `Error: value "${value}" for "limit" search param is invalid`
-        : false,
-  };
-  protected partsDefinition: iQueryParamsConfig = {
-    version: (value: string) =>
-      !isPositiveFloat(value)
-        ? `Error: value "${value}" for "version" url param is invalid`
-        : false,
-    api: (value: string) =>
-      value !== "api"
-        ? `Error: value "${value}" for "api" url param is invalid`
-        : false,
-    collection: (value: string) => false,
-    id: (value: string) =>
-      !isPositiveInteger(value)
-        ? `Error: value "${value}" for "id" url param is invalid`
-        : false,
-  };
+  protected pathParamsDefinition: iQueryParamsConfig = {};
+  protected queryParamsDefinition: iQueryParamsConfig = {};
 
-  constructor(url: string,) {
+  constructor(url: string, pathParamsDefinition: iQueryParamsConfig, queryParamsDefinition: iQueryParamsConfig) {
     this.url = new URL(url.toLocaleLowerCase());
     this.search = new URLSearchParams(this.url.search);
+    this.pathParamsDefinition = pathParamsDefinition;
+    this.queryParamsDefinition = queryParamsDefinition;
   }
 
   /**
@@ -74,13 +37,13 @@ class UrlParser {
    */
   validateURLParts = (): boolean => {
     const urlParts = this.getURLParts();
-    const partsKeys = Object.keys(this.partsDefinition);
+    const partsKeys = Object.keys(this.pathParamsDefinition);
     if (urlParts.length !== partsKeys.length) {
       throw new Error(`Error: the url ${this.url} parts are exceeded`);
     }
     urlParts.forEach((part, index) => {
       const partKey = partsKeys[index];
-      const isNotValid = this.partsDefinition?.[partKey](part);
+      const isNotValid = this.pathParamsDefinition?.[partKey](part);
       if (isNotValid) {
         throw new Error(isNotValid);
       }
@@ -105,14 +68,14 @@ class UrlParser {
   }
 
   /**
-   * Get the query params from the url and ignore the params not defined in queryParamsConfig
+   * Get the query params from the url and ignore the params not defined in queryParamsDefinition
    * The params defined ignore case
    * If the value of a param is not valid, throw an error
    * @returns iQuerySearchParams
    */
   getSearchParams(): iQuerySearchParams {
     let parsedSearchParams = {};
-    const paramsKeys = Object.keys(this.queryParamsConfig);
+    const paramsKeys = Object.keys(this.queryParamsDefinition);
     paramsKeys.forEach((paramKey) => {
       const value = this.search.get(paramKey);
       if (value) {
@@ -131,7 +94,7 @@ class UrlParser {
   }
 
   /**
-   * Validate if the value of the param is valid using the function defined in queryParamsConfig.
+   * Validate if the value of the param is valid using the function defined in queryParamsDefinition.
    * Return false if the param is valid
    * Return string with the error if the param is not valid
    * @param param
@@ -142,7 +105,7 @@ class UrlParser {
     param: keyof iQueryParamsConfig,
     value: any
   ): false | string {
-    return this.queryParamsConfig[param]?.(value);
+    return this.queryParamsDefinition[param]?.(value);
   }
 }
 

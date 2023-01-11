@@ -1,16 +1,44 @@
-import UrlParser from "./UrlParser";
+import UrlParser from "../models/UrlParser";
+import { iQueryParamsConfig } from "../types";
+import { isPositiveFloat, isPositiveInteger } from "../utils";
 const URL_ROOT_PATH = "https://www.example-url.com";
+
+const pathDefinition: iQueryParamsConfig = {
+  version: (value: string) =>
+    !isPositiveFloat(value)
+      ? `Error: value "${value}" for "version" url param is invalid`
+      : false,
+  api: (value: string) =>
+    value !== "api"
+      ? `Error: value "${value}" for "api" url param is invalid`
+      : false,
+  collection: (value: string) => false,
+  id: (value: string) =>
+    !isPositiveInteger(value)
+      ? `Error: value "${value}" for "id" url param is invalid`
+      : false,
+};
+
+const queryParamsDefinition: iQueryParamsConfig = {
+  sort: (value: string) =>
+    !["DESC", "ASC"].includes(value.toUpperCase())
+      ? `Error: value "${value}" for "sort" search param is invalid`
+      : false,
+  limit: (value: string) =>
+    !isPositiveInteger(value)
+      ? `Error: value "${value}" for "limit" search param is invalid`
+      : false,
+};
 
 describe("UrlParser", () => {
   it("should be create a url instance", () => {
-    const urlParser = new UrlParser(URL_ROOT_PATH);
+    const urlParser = new UrlParser(URL_ROOT_PATH, pathDefinition, queryParamsDefinition);
     expect(urlParser.url).toBeInstanceOf(URL);
   });
 
   it("should return always the hash in lowercase when url have multiple case", () => {
     const urlParser = new UrlParser(
-      `${URL_ROOT_PATH}/1/api/LISTING/4?LIMIT=10&sort=DESC`
-    );
+      `${URL_ROOT_PATH}/1/api/LISTING/4?LIMIT=10&sort=DESC`, pathDefinition, queryParamsDefinition);
     const urlParts = urlParser.parseQueryParams();
     expect(urlParts).toEqual({
       version: "1",
@@ -64,7 +92,7 @@ describe("UrlParser", () => {
   ])(
     "should transform the received url $url in $expectedHash",
     ({ url, expectedHash }) => {
-      const urlParser = new UrlParser(url);
+      const urlParser = new UrlParser(url, pathDefinition, queryParamsDefinition);
       const urlParts = urlParser.parseQueryParams();
       expect(urlParts).toEqual(expectedHash);
     }
@@ -96,7 +124,7 @@ describe("UrlParser", () => {
   ])(
     "should transform the received url $url search params in $expectedHash",
     ({ url, expectedHash }) => {
-      const urlParser = new UrlParser(url);
+      const urlParser = new UrlParser(url, pathDefinition, queryParamsDefinition);
       const urlSearchQueryParams = urlParser.getSearchParams();
       expect(urlSearchQueryParams).toEqual(expectedHash);
     }
@@ -131,7 +159,7 @@ describe("UrlParser", () => {
   ])(
     'should return an ERROR "$expectedErrorMsg" when the url is $url',
     ({ url, expectedErrorMsg }) => {
-      const urlParser = new UrlParser(url);
+      const urlParser = new UrlParser(url, pathDefinition, queryParamsDefinition);
       try {
         urlParser.getSearchParams();
       } catch (error) {
@@ -144,7 +172,7 @@ describe("UrlParser", () => {
 
   it('should return an ERROR when url parts exceed allowable', () => {
     let url = `${URL_ROOT_PATH}/1/api/listing/4/invalid`;
-    const urlParser = new UrlParser(url);
+    const urlParser = new UrlParser(url, pathDefinition, queryParamsDefinition);
     try {
       urlParser.parseQueryParams();
     }catch(error){
@@ -186,7 +214,7 @@ describe("UrlParser", () => {
         'Error: value "4b" for "id" url param is invalid',
     }
   ])('should return an ERROR "$expectedErrorMsg" when the url is $url', ({ url, expectedErrorMsg}) => {
-    const urlParser = new UrlParser(url);
+    const urlParser = new UrlParser(url, pathDefinition, queryParamsDefinition);
     try {
       urlParser.parseQueryParams();
     }catch(error){
