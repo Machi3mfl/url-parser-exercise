@@ -1,34 +1,45 @@
 import UrlParser from "../models/UrlParser";
-import { iQueryParamsConfig } from "../types";
+import { iValidateParam } from "../types";
 import { isPositiveFloat, isPositiveInteger } from "../utils";
 const URL_ROOT_PATH = "https://www.example-url.com";
 
-const pathDefinition: iQueryParamsConfig = {
-  version: (value: string) =>
-    !isPositiveFloat(value)
-      ? `Error: value "${value}" for "version" url param is invalid`
-      : false,
-  api: (value: string) =>
-    value !== "api"
-      ? `Error: value "${value}" for "api" url param is invalid`
-      : false,
-  collection: (value: string) => false,
-  id: (value: string) =>
-    !isPositiveInteger(value)
-      ? `Error: value "${value}" for "id" url param is invalid`
-      : false,
+const queryParamsDefinition: iValidateParam = {
+  sort: (value: string) => {
+    if(!["DESC", "ASC"].includes(value.toUpperCase())){
+      return { error: `Error: value "${value}" for "sort" search param is invalid`, value: value }
+    }
+    return { error: false, value: value }
+  },
+  limit: (value: string) => {
+    if(!isPositiveInteger(value)){
+      return { error: `Error: value "${value}" for "limit" search param is invalid`, value }
+    }
+    return { error: false, value: parseInt(value) }
+  },
 };
 
-const queryParamsDefinition: iQueryParamsConfig = {
-  sort: (value: string) =>
-    !["DESC", "ASC"].includes(value.toUpperCase())
-      ? `Error: value "${value}" for "sort" search param is invalid`
-      : false,
-  limit: (value: string) =>
-    !isPositiveInteger(value)
-      ? `Error: value "${value}" for "limit" search param is invalid`
-      : false,
+const pathDefinition: iValidateParam = {
+  version: (value: string) => {
+    if(!isPositiveFloat(value)){
+      return { error: `Error: value "${value}" for "version" url param is invalid`, value }
+    }
+    return { error: false, value }
+  },
+  api: (value: string) => {
+    if(value !== "api"){
+      return { error: `Error: value "${value}" for "api" url param is invalid`, value }
+    }
+    return { error: false }
+  },
+  collection: (value: string) => { return { error: false, value } },
+  id: (value: string) => {
+    if(!isPositiveInteger(value)){
+      return { error: `Error: value "${value}" for "id" url param is invalid`, value }
+    }
+    return { error: false, value: parseInt(value) }
+  }
 };
+
 
 describe("UrlParser", () => {
   it("should be create a url instance", () => {

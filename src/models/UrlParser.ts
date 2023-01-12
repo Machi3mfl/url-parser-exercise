@@ -1,4 +1,4 @@
-import { iQueryParamsConfig, iQueryParams, iQuerySearchParams } from "../types";
+import { iValidateParam, iValidateParamResponse } from "../types";
 // crear factory para crear los parsers con la definicion de los parametros
 // crear un parser para cada version
 // crear diagrama de secuencia
@@ -9,10 +9,10 @@ import { iQueryParamsConfig, iQueryParams, iQuerySearchParams } from "../types";
 class UrlParser {
   url: URL;
   protected search: URLSearchParams;
-  protected pathParamsDefinition: iQueryParamsConfig = {};
-  protected queryParamsDefinition: iQueryParamsConfig = {};
+  protected pathParamsDefinition: iValidateParam = {};
+  protected queryParamsDefinition: iValidateParam = {};
 
-  constructor(url: string, pathParamsDefinition: iQueryParamsConfig, queryParamsDefinition: iQueryParamsConfig) {
+  constructor(url: string, pathParamsDefinition: iValidateParam, queryParamsDefinition: iValidateParam) {
     this.url = new URL(url.toLocaleLowerCase());
     this.search = new URLSearchParams(this.url.search);
     this.pathParamsDefinition = pathParamsDefinition;
@@ -43,9 +43,9 @@ class UrlParser {
     }
     urlParts.forEach((part, index) => {
       const partKey = partsKeys[index];
-      const isNotValid = this.pathParamsDefinition?.[partKey](part);
-      if (isNotValid) {
-        throw new Error(isNotValid);
+      const validationResponse = this.pathParamsDefinition?.[partKey](part);
+      if (validationResponse.error) {
+        throw new Error(validationResponse.error);
       }
     }, this);
     return true;
@@ -53,18 +53,33 @@ class UrlParser {
 
   /**
    * Transform the url path into an object with the query params
-   * @returns iQueryParams
+   * @returns object
    */
-  parseQueryParams(): iQueryParams {
+  parseQueryParams(): object {
     this.validateURLParts();
-    const [apiVersion, api, collection, id] = this.getURLParts();
+    const urlParts = this.parseURLParts();
     const searchParams = this.getSearchParams();
     return {
-      version: apiVersion,
-      collection,
-      id: parseInt(id),
+      ...urlParts,
       ...searchParams,
     };
+  }
+
+  /**
+   * Parsed the url path into an object with the path params
+   * @returns object
+   */
+  parseURLParts(): object {
+    const urlParts = this.getURLParts();
+    const partsKeys = Object.keys(this.pathParamsDefinition);
+    let parsedPathParams: any = {};
+    partsKeys.forEach((key: keyof iValidateParam, index) => {
+      const res = this.pathParamsDefinition[key](urlParts[index])
+      if(!res.error && res.value ){
+        parsedPathParams[key] = res.value;
+      }
+    })
+    return parsedPathParams;
   }
 
   /**
@@ -79,13 +94,13 @@ class UrlParser {
     paramsKeys.forEach((paramKey) => {
       const value = this.search.get(paramKey);
       if (value) {
-        const isNotValid = this.queryParamsIsInValid(paramKey, value);
-        if (isNotValid) {
-          throw new Error(isNotValid);
+        const response = this.queryParamsIsInValid(paramKey, value);
+        if (response.error) {
+          throw new Error(response.error);
         } else {
           parsedSearchParams = {
             ...parsedSearchParams,
-            [paramKey]: paramKey === "limit" ? parseInt(value) : value,
+            [paramKey]: response.value,
           };
         }
       }
@@ -102,9 +117,9 @@ class UrlParser {
    * @returns false | string
    */
   queryParamsIsInValid(
-    param: keyof iQueryParamsConfig,
+    param: keyof iValidateParam,
     value: any
-  ): false | string {
+  ): iValidateParamResponse {
     return this.queryParamsDefinition[param]?.(value);
   }
 }
