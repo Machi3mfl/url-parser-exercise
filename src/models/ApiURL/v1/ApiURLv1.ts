@@ -1,39 +1,50 @@
 import ApiURL from "../ApiURL";
-import { iQueryParamsConfig, tApiVersion } from "../../../types";
+import { iValidateParam, tApiVersion } from "../../../types";
 import { isPositiveFloat, isPositiveInteger } from "../../../utils";
+import UrlParser from "../../UrlParser";
 
 export default class ApiURLv1 extends ApiURL {
   protected apiVersion: tApiVersion = "v1";
-  protected queryParamsConfig: iQueryParamsConfig = {
-    sort: (value: string) =>
-      !["DESC", "ASC"].includes(value.toUpperCase())
-        ? `Error: value "${value}" for "sort" search param is invalid`
-        : false,
-    limit: (value: string) =>
-      !isPositiveInteger(value)
-        ? `Error: value "${value}" for "limit" search param is invalid`
-        : false,
+  protected queryParamsConfig: iValidateParam = {
+    sort: (value: string) => {
+      if(!["DESC", "ASC"].includes(value.toUpperCase())){
+        return { error: `Error: value "${value}" for "sort" search param is invalid`, value: value }
+      }
+      return { error: false, value: value }
+    },
+    limit: (value: string) => {
+      if(!isPositiveInteger(value)){
+        return { error: `Error: value "${value}" for "limit" search param is invalid`, value }
+      }
+      return { error: false, value: parseInt(value) }
+    },
   };
-  protected partsDefinition: iQueryParamsConfig = {
-    version: (value: string) =>
-      !isPositiveFloat(value)
-        ? `Error: value "${value}" for "version" url param is invalid`
-        : false,
-    api: (value: string) =>
-      value !== "api"
-        ? `Error: value "${value}" for "api" url param is invalid`
-        : false,
-    collection: (value: string) => false,
-    id: (value: string) =>
-      !isPositiveInteger(value)
-        ? `Error: value "${value}" for "id" url param is invalid`
-        : false,
+  protected partsDefinition: iValidateParam = {
+    version: (value: string) => {
+      if(!isPositiveFloat(value)){
+        return { error: `Error: value "${value}" for "version" url param is invalid`, value }
+      }
+      return { error: false, value }
+    },
+    api: (value: string) => {
+      if(value !== "api"){
+        return { error: `Error: value "${value}" for "api" url param is invalid`, value }
+      }
+      return { error: false }
+    },
+    collection: (value: string) => { return { error: false, value } },
+    id: (value: string) => {
+      if(!isPositiveInteger(value)){
+        return { error: `Error: value "${value}" for "id" url param is invalid`, value }
+      }
+      return { error: false, value: parseInt(value) }
+    }
   };
 
-  validatePaths(): boolean {
-    throw new Error("Method not implemented.");
+  parseURL(url: string): object {
+    this.urlParser = new UrlParser(this.partsDefinition, this.queryParamsConfig);
+    return this.urlParser.parseURL(url);
   }
-  validateSeachParams(): boolean {
-    throw new Error("Method not implemented.");
-  }
+
+  
 }

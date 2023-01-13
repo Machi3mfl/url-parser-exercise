@@ -1,24 +1,22 @@
-import { iQueryParamsConfig, tApiVersion } from "../../types";
+import { iValidateParam, tApiVersion } from "../../types";
+import UrlParser from "../UrlParser";
 
 interface IApiURL { 
-    validatePaths(): boolean;
-    validateSeachParams(): boolean;
+    urlParser: UrlParser;
+    parseURL(url: string): object;
 }
 
 export default abstract class ApiURL implements IApiURL {
     protected apiVersion: tApiVersion;
-    protected queryParamsConfig: iQueryParamsConfig = {};
-    protected partsDefinition: iQueryParamsConfig = {};
+    protected queryParamsConfig: iValidateParam = {};
+    protected partsDefinition: iValidateParam = {};
+    urlParser!: UrlParser;
 
     constructor(apiVersion: tApiVersion){
         this.apiVersion = apiVersion;
     }
 
-    validatePaths(): boolean {
-        throw new Error("Method not implemented.");
-    }
-
-    validateSeachParams(): boolean {
+    parseURL(url: string): object {
         throw new Error("Method not implemented.");
     }
 }

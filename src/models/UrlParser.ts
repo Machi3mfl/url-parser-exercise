@@ -1,22 +1,29 @@
 import { iValidateParam, iValidateParamResponse } from "../types";
-// crear factory para crear los parsers con la definicion de los parametros
-// crear un parser para cada version
 // crear diagrama de secuencia
 // hacer deploy con pasos
 // implementar con pasos
 // mostrar pruebas de resultados de unit test con pasos
 
 class UrlParser {
-  url: URL;
-  protected search: URLSearchParams;
+  url: URL | null;
+  protected search: URLSearchParams | null;
   protected pathParamsDefinition: iValidateParam = {};
   protected queryParamsDefinition: iValidateParam = {};
 
-  constructor(url: string, pathParamsDefinition: iValidateParam, queryParamsDefinition: iValidateParam) {
-    this.url = new URL(url.toLocaleLowerCase());
-    this.search = new URLSearchParams(this.url.search);
+  constructor(
+    pathParamsDefinition: iValidateParam,
+    queryParamsDefinition: iValidateParam
+  ) {
     this.pathParamsDefinition = pathParamsDefinition;
     this.queryParamsDefinition = queryParamsDefinition;
+    this.url = null;
+    this.search = null;
+  }
+
+  parseURL(url: string) {
+    this.url = new URL(url.toLocaleLowerCase());
+    this.search = new URLSearchParams(this.url.search);
+    return this.parseURLParams();
   }
 
   /**
@@ -26,7 +33,8 @@ class UrlParser {
   private getURLParts = (): string[] => {
     // get parts and validate them
     // throw error if not valid
-    return this.url.pathname.split("/").filter((item) => item);
+    if (!this.url) throw new Error("URL must be defined");
+    return this.url?.pathname.split("/").filter((item) => item);
   };
 
   /**
@@ -35,7 +43,7 @@ class UrlParser {
    *
    * @returns boolean
    */
-  validateURLParts = (): boolean => {
+  private validateURLParts = (): boolean => {
     const urlParts = this.getURLParts();
     const partsKeys = Object.keys(this.pathParamsDefinition);
     if (urlParts.length !== partsKeys.length) {
@@ -55,7 +63,8 @@ class UrlParser {
    * Transform the url path into an object with the query params
    * @returns object
    */
-  parseQueryParams(): object {
+  parseURLParams(): object {
+    if (!this.url) throw new Error("URL must be defined");
     this.validateURLParts();
     const urlParts = this.parseURLParts();
     const searchParams = this.getSearchParams();
@@ -74,11 +83,11 @@ class UrlParser {
     const partsKeys = Object.keys(this.pathParamsDefinition);
     let parsedPathParams: any = {};
     partsKeys.forEach((key: keyof iValidateParam, index) => {
-      const res = this.pathParamsDefinition[key](urlParts[index])
-      if(!res.error && res.value ){
+      const res = this.pathParamsDefinition[key](urlParts[index]);
+      if (!res.error && res.value) {
         parsedPathParams[key] = res.value;
       }
-    })
+    });
     return parsedPathParams;
   }
 
@@ -88,11 +97,12 @@ class UrlParser {
    * If the value of a param is not valid, throw an error
    * @returns iQuerySearchParams
    */
-  getSearchParams(): iQuerySearchParams {
+  getSearchParams(): object {
+    if (!this.search) throw new Error("URL must be defined");
     let parsedSearchParams = {};
     const paramsKeys = Object.keys(this.queryParamsDefinition);
     paramsKeys.forEach((paramKey) => {
-      const value = this.search.get(paramKey);
+      const value = this.search?.get(paramKey);
       if (value) {
         const response = this.queryParamsIsInValid(paramKey, value);
         if (response.error) {
