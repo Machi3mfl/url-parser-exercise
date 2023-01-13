@@ -7,14 +7,18 @@ interface IApiURL {
 
 export default abstract class ApiURL implements IApiURL {
     protected apiVersion: tApiVersion;
-    protected queryParamsConfig: iValidateParam = {};
-    protected partsDefinition: iValidateParam = {};
+    protected queryParamsDefinition!: iValidateParam;
+    protected pathParamsDefinition!: iValidateParam;
     protected urlParser!: UrlParser;
 
     constructor(apiVersion: tApiVersion){
         this.apiVersion = apiVersion;
     }
 
+    /**
+     * Parse the received url and return an object with the url hash
+     * @param url 
+     */
     parseURL(url: string): object {
         throw new Error("Method not implemented");
     }

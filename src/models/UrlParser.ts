@@ -20,6 +20,10 @@ class UrlParser {
     this.search = null;
   }
 
+  /**
+   * Parse the received url and return an object with the url hash
+   * @param url
+   */
   parseURL(url: string) {
     this.url = new URL(url.toLocaleLowerCase());
     this.search = new URLSearchParams(this.url.search);
