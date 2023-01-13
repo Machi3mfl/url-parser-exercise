@@ -72,6 +72,39 @@ describe("UrlParser", () => {
     });
   });
 
+  it('should return ERROR when getSearchParams is called and URL is not defined', () => {
+    try {
+      const urlParser = new UrlParser(pathDefinition, queryParamsDefinition);
+      urlParser.getSearchParams();
+    }catch(error){
+      if(error instanceof Error){
+        expect(error.message).toBe('URL must be defined')
+      }
+    }
+  })
+
+  it('should return ERROR when parseURLParams is called and URL is not defined', () => {
+    try {
+      const urlParser = new UrlParser(pathDefinition, queryParamsDefinition);
+      urlParser.parseURLParams();
+    }catch(error){
+      if(error instanceof Error){
+        expect(error.message).toBe('URL must be defined')
+      }
+    }
+  })
+
+  it('should return ERROR when getURLParts is called and URL is not defined', () => {
+    try {
+      const urlParser = new UrlParser(pathDefinition, queryParamsDefinition);
+      urlParser.getURLParts();
+    }catch(error){
+      if(error instanceof Error){
+        expect(error.message).toBe('URL must be defined')
+      }
+    }
+  })
+
   it.each([
     {
       url: `${URL_ROOT_PATH}/1/api/listing/4?limit=10&sort=desc`,
