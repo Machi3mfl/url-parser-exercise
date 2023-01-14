@@ -59,6 +59,9 @@ npm run test:coverage
 
 You will find the `coverage report` in the the next [link](https://machi3mfl.github.io/url-parser-exercise/index.html).
 
+<img width="1440" alt="Screenshot 2023-01-14 at 17 16 53" src="https://user-images.githubusercontent.com/6089438/212494656-7d83a3b5-ece0-437a-88c7-d83cf5816736.png">
+
+
 Also, you can check the unit tests files to see how to use the solution implemented.
 
 ## Full Documentation
