@@ -2,7 +2,6 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
-- [CI/CD](#cicd)
 - [Full documentation](#full-documentation)
 
 # Introduction
