@@ -45,24 +45,18 @@ limit: 10
 
 Installing the current exercise using npm package
 
-```
+```bash
+git clone https://github.com/Machi3mfl/url-parser-exercise.git
 npm install
 ```
 
-## Usage
+## Run unit test
 
 The current exercise only have unit test script, you can run it using the following command:
 
-```
+```bash
 npm run test:coverage
 ```
-
-## CI/CD
-
-Added github actions implementing CI/CD (Continuous integration/Continuous deployment) workflows like:
-
-- Running Unit tests task
-- Deploy [Test Report](https://machi3mfl.github.io/url-parser-exercise/) in Github Pages
 
 ## Full Documentation
 
