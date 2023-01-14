@@ -1,10 +1,10 @@
 ## Contents
-- [Introduction](#introduction)
+- [Exercise](#introduction)
 - [Installation](#installation)
-- [Usage](#usage)
+- [Run unit tests suite](#unit-tests)
 - [Full documentation](#full-documentation)
 
-# Introduction
+# Exercise
 
 We need some logic that extracts the variable parts of a url into a hash. The keys of the
 extract hash will be the "names" of the variable parts of a url, and the values of the hash
@@ -49,13 +49,15 @@ git clone https://github.com/Machi3mfl/url-parser-exercise.git
 npm install
 ```
 
-## Run unit test
+## Run unit tests suite
 
 The current exercise only have unit test script, you can run it using the following command:
 
 ```bash
 npm run test:coverage
 ```
+
+Also, you can check the unit tests files to see how to use the solution implemented.
 
 ## Full Documentation
 
